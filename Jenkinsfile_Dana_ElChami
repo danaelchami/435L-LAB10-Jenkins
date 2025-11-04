@@ -1,71 +1,94 @@
-pipeline {
+pipeline
+{
     agent any
-
-    environment {
-        SYSTEM_PYTHON = 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
+    environment
+    { 
         VIRTUAL_ENV = 'venv'
-        PYTHON = 'venv\\Scripts\\python.exe'
-        PIP = 'venv\\Scripts\\pip.exe'
+        SYSTEM_PYTHON = 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
     }
 
-    stages {
-
-        stage('Setup') {
+    stages
+    { 
+        stage('Setup')
+        {
             steps {
                 script {
+                    if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
+                        bat "${SYSTEM_PYTHON} -m venv ${VIRTUAL_ENV}"
+                    }
                     bat """
-                    echo Setting up Python environment with Python 3.13...
-                    if exist ${VIRTUAL_ENV} rmdir /s /q ${VIRTUAL_ENV}
-                    ${SYSTEM_PYTHON} -m venv ${VIRTUAL_ENV}
-                    ${PYTHON} -m pip install --upgrade pip
-                    ${PIP} install flake8 pytest coverage bandit
-                    ${PIP} list
+                    ${VIRTUAL_ENV}\\Scripts\\python.exe -m pip install --upgrade pip
+                    ${VIRTUAL_ENV}\\Scripts\\pip.exe install flake8 pytest coverage bandit
+                    ${VIRTUAL_ENV}\\Scripts\\pip.exe list
                     """
                 }
             }
         }
 
-        stage('Lint') {
+        stage('Lint')
+        { 
             steps {
-                bat "${PYTHON} -m flake8 app.py"
+                script {
+                    bat "${VIRTUAL_ENV}\\Scripts\\python.exe -m flake8 app.py"
+                }
             }
         }
 
-        stage('Test') {
+        stage('Test')
+        { 
             steps {
-                bat "${PYTHON} -m pytest"
+                script {
+                    bat "${VIRTUAL_ENV}\\Scripts\\python.exe -m pytest"
+                }
             }
         }
 
-        stage('Coverage') {
+        stage('Coverage')
+        { 
             steps {
-                bat """
-                ${PYTHON} -m coverage run -m pytest
-                ${PYTHON} -m coverage report -m
-                """
+                script {
+                    bat """
+                    ${VIRTUAL_ENV}\\Scripts\\python.exe -m coverage run -m pytest
+                    ${VIRTUAL_ENV}\\Scripts\\python.exe -m coverage report -m
+                    """
+                }
             }
         }
 
-        stage('Security Scan') {
+        stage('Security Scan')
+{ 
             steps {
-                bat "${PYTHON} -m bandit -r ."
+                script {
+                    bat """
+                    set PYTHONIOENCODING=utf-8
+                    ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r . > bandit_report.txt
+                    type bandit_report.txt
+                    """
+                }
             }
         }
 
-        stage('Deploy') {
+
+        stage('Deploy')
+        { 
             steps {
-                echo "Deploying application..."
-                bat "${PYTHON} app.py"
+                script {
+                    echo "Deploying application..."
+                    bat """
+                    echo Starting local deployment...
+                    ${VIRTUAL_ENV}\\Scripts\\python.exe app.py
+                    echo Application deployed locally on Jenkins host.
+                    """
+                }
             }
         }
     }
 
-    post {
-        success {
-            echo 'Build completed successfully!'
-        }
-        failure {
-            echo 'Build failed. Please check the console output for errors.'
+    post 
+    {
+        always
+        { 
+            cleanWs()
         }
     }
 }
