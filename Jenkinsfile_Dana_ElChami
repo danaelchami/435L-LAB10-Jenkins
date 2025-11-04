@@ -56,13 +56,14 @@ pipeline
         }
 
         stage('Security Scan')
-        { 
+        {
             steps {
                 script {
                     bat """
                     echo Running Bandit security scan with UTF-8 encoding...
                     set PYTHONIOENCODING=utf-8
-                    ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r . -f txt -o bandit_report.txt || exit /b 0
+                    call ${VIRTUAL_ENV}\\Scripts\\activate
+                    python -m bandit -r . -f txt -o bandit_report.txt || exit /b 0
                     type bandit_report.txt
                     """
                 }
