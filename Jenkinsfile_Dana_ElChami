@@ -3,67 +3,57 @@ pipeline {
 
     environment {
         VIRTUAL_ENV = 'venv'
+        PYTHON = 'venv\\Scripts\\python.exe'
+        PIP = 'venv\\Scripts\\pip.exe'
     }
 
     stages {
 
-       stage('Setup') {
+        stage('Setup') {
             steps {
                 script {
                     bat """
                     if exist ${VIRTUAL_ENV} rmdir /s /q ${VIRTUAL_ENV}
                     python -m venv ${VIRTUAL_ENV}
-                    call ${VIRTUAL_ENV}\\Scripts\\activate && python -m pip install --upgrade pip
-                    call ${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt
-                    call ${VIRTUAL_ENV}\\Scripts\\activate && pip list
+                    ${PYTHON} -m pip install --upgrade pip
+                    ${PIP} install flake8 pytest coverage bandit
+                    ${PIP} list
                     """
                 }
             }
         }
 
-
         stage('Lint') {
             steps {
-                script {
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && flake8 app.py"
-                }
+                bat "${PYTHON} -m flake8 app.py"
             }
         }
 
         stage('Test') {
             steps {
-                script {
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && pytest"
-                }
+                bat "${PYTHON} -m pytest"
             }
         }
 
         stage('Coverage') {
             steps {
-                script {
-                    bat """
-                    call ${VIRTUAL_ENV}\\Scripts\\activate
-                    coverage run -m pytest
-                    coverage report -m
-                    """
-                }
+                bat """
+                ${PYTHON} -m coverage run -m pytest
+                ${PYTHON} -m coverage report -m
+                """
             }
         }
 
         stage('Security Scan') {
             steps {
-                script {
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && bandit -r ."
-                }
+                bat "${PYTHON} -m bandit -r ."
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
-                    echo "Deploying application..."
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && python app.py"
-                }
+                echo "Deploying application..."
+                bat "${PYTHON} app.py"
             }
         }
     }
@@ -74,3 +64,4 @@ pipeline {
         }
     }
 }
+s
