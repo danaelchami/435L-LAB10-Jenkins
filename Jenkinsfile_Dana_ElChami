@@ -2,20 +2,20 @@ pipeline {
     agent any
 
     environment {
+        SYSTEM_PYTHON = 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
         VIRTUAL_ENV = 'venv'
         PYTHON = 'venv\\Scripts\\python.exe'
         PIP = 'venv\\Scripts\\pip.exe'
     }
 
     stages {
-
         stage('Setup') {
             steps {
                 script {
                     bat """
-                    echo Setting up Python environment...
+                    echo Setting up Python environment with Python 3.13...
                     if exist ${VIRTUAL_ENV} rmdir /s /q ${VIRTUAL_ENV}
-                    python -m venv ${VIRTUAL_ENV}
+                    ${SYSTEM_PYTHON} -m venv ${VIRTUAL_ENV}
                     ${PYTHON} -m pip install --upgrade pip
                     ${PIP} install flake8 pytest coverage bandit
                     ${PIP} list
@@ -64,7 +64,7 @@ pipeline {
             echo 'Build completed successfully!'
         }
         failure {
-            echo 'Build failed!'
+            echo 'Build failed. Please check the console output for errors.'
         }
     }
 }
