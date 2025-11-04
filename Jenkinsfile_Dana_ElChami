@@ -7,20 +7,20 @@ pipeline {
 
     stages {
 
-        stage('Setup') {
+       stage('Setup') {
             steps {
                 script {
                     bat """
                     if exist ${VIRTUAL_ENV} rmdir /s /q ${VIRTUAL_ENV}
                     python -m venv ${VIRTUAL_ENV}
-                    call ${VIRTUAL_ENV}\\Scripts\\activate
-                    python -m pip install --upgrade pip
-                    pip install -r requirements.txt
-                    pip list
+                    call ${VIRTUAL_ENV}\\Scripts\\activate && python -m pip install --upgrade pip
+                    call ${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt
+                    call ${VIRTUAL_ENV}\\Scripts\\activate && pip list
                     """
                 }
             }
         }
+
 
         stage('Lint') {
             steps {
