@@ -13,6 +13,7 @@ pipeline {
             steps {
                 script {
                     bat """
+                    echo Setting up Python environment...
                     if exist ${VIRTUAL_ENV} rmdir /s /q ${VIRTUAL_ENV}
                     python -m venv ${VIRTUAL_ENV}
                     ${PYTHON} -m pip install --upgrade pip
@@ -59,9 +60,11 @@ pipeline {
     }
 
     post {
-        always {
-            cleanWs()
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }
-s
