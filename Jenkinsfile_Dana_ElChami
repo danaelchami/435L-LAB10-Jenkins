@@ -56,21 +56,14 @@ pipeline
             }
         }
 
-        stage('Security Scan') {
-            environment {
-                PYTHONIOENCODING = 'utf-8'
-            }
+        stage('Security Scan')
+        { 
             steps {
                 script {
                     bat """
-                        chcp 65001 >NUL
-                        call ${VIRTUAL_ENV}\\Scripts\\activate
-                        echo Installing Bandit...
-                        pip install bandit
-                        echo Running Bandit on project files only (excluding venv)...
-                        python -m bandit -r . --exclude venv,__pycache__,.pytest_cache,tests -lll -f txt -o bandit_report.txt || echo Bandit completed with warnings
-                        type bandit_report.txt
+                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r . --exclude ${WORKSPACE.replace('\\','/')}/venv,__pycache__,.pytest_cache,tests -lll || exit 0
                     """
+
                 }
             }
         }
