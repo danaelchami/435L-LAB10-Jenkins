@@ -59,11 +59,10 @@ pipeline
             steps {
                 script {
                     bat """
-                        set PYTHONIOENCODING=utf-8
-                        call venv\\Scripts\\activate
-                        bandit -r . -f txt -o bandit_report.txt
+                        call ${VIRTUAL_ENV}\\Scripts\\activate
+                        pip install bandit
+                        bandit -r .
                     """
-                    echo "Security scan completed — results saved to bandit_report.txt"
                 }
             }
         }
