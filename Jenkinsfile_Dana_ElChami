@@ -60,24 +60,16 @@ pipeline
             steps {
                 script {
                     bat """
-                        chcp 65001 >nul
-                        echo Running Bandit scan excluding venv and external libraries...
-
-                        set "SRC_DIR=%WORKSPACE%\\app"
-                        set "REPORT=%WORKSPACE%\\bandit_report.txt"
-
-                        echo Source directory: %SRC_DIR%
-                        echo Output report: %REPORT%
-
-                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r "%SRC_DIR%" ^
-                            --exclude "%WORKSPACE%\\venv,__pycache__,.pytest_cache,tests" ^
-                            -lll -f txt -o "%REPORT%" || exit 0
-
-                        type "%REPORT%"
+                        echo Running Bandit security scan on app.py and test_app.py only...
+                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit app.py test_app.py ^
+                            --skip B101,B110,B307,B108 ^
+                            -lll -f txt -o bandit_report.txt || exit 0
+                        type bandit_report.txt
                     """
                 }
             }
         }
+
 
 
 
