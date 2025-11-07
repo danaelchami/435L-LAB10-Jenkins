@@ -61,30 +61,19 @@ pipeline
                 script {
                     bat """
                         echo ====================================================
-                        echo         Running Security Scan with Bandit
+                        echo        Running Bandit Security Scan
                         echo ====================================================
 
-                        REM Create a clean virtual environment ONLY for scanning
-                        if exist bandit_env rmdir /s /q bandit_env
-                        python -m venv bandit_env
-                        call bandit_env\\Scripts\\activate
+                        call venv\\Scripts\\activate
 
-                        echo Installing Bandit...
-                        pip install bandit >nul
-
-                        echo Running Bandit on source files only...
-                        bandit -r . ^
-                            --exclude venv,bandit_env,__pycache__,.pytest_cache,tests ^
-                            -f txt -o bandit_report.txt || exit 0
+                        REM Run Bandit and ignore exit code (continue pipeline)
+                        python -m bandit -r . --exit-zero -f txt -o bandit_report.txt
 
                         echo ====================================================
-                        echo        SECURITY SCAN COMPLETED SUCCESSFULLY
+                        echo       Bandit Scan Completed (No Failures)
                         echo ====================================================
+
                         type bandit_report.txt
-
-                        echo Cleaning up temporary scan environment...
-                        call bandit_env\\Scripts\\deactivate
-                        rmdir /s /q bandit_env
                     """
                 }
             }
