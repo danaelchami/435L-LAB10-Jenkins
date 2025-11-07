@@ -58,14 +58,16 @@ pipeline
         stage('Security Scan') {
             steps {
                 script {
-                    sh """
-                        source ${VIRTUAL_ENV}/bin/activate
-                        pip install bandit
-                        bandit -r .
+                    bat """
+                        set PYTHONIOENCODING=utf-8
+                        call venv\\Scripts\\activate
+                        bandit -r . -f txt -o bandit_report.txt
                     """
+                    echo "Security scan completed — results saved to bandit_report.txt"
                 }
             }
         }
+
 
         stage('Deploy')
         { 
