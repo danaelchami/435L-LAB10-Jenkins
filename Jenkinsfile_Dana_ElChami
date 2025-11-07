@@ -60,9 +60,13 @@ pipeline
             steps {
                 script {
                     bat """
-                        echo Running Bandit only on project source folder...
-                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r app --exclude __pycache__,.pytest_cache,tests -lll || exit 0
+                        for /f %%A in ('cd') do set CURR=%%A
+                        set "VENV_PATH=%CURR%\\venv"
+                        echo Running Bandit while excluding: %VENV_PATH%
+                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r app --exclude "%VENV_PATH%",__pycache__,.pytest_cache,tests -lll -f txt -o bandit_report.txt || exit 0
+                        type bandit_report.txt
                     """
+
                 }
             }
         }
