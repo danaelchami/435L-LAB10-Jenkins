@@ -60,15 +60,26 @@ pipeline
             steps {
                 script {
                     bat """
-                        echo Running Bandit security scan on app.py and test_app.py only...
-                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit app.py test_app.py ^
+                        echo Copying only source files to temp folder...
+                        mkdir temp_scan
+                        copy app.py temp_scan\\
+                        copy test_app.py temp_scan\\
+                        copy requirements.txt temp_scan\\
+                        
+                        echo Running Bandit cleanly inside temp_scan...
+                        cd temp_scan
+                        ..\\${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r . ^
                             --skip B101,B110,B307,B108 ^
-                            -lll -f txt -o bandit_report.txt || exit 0
+                            -lll -f txt -o ..\\bandit_report.txt || exit 0
+                        cd ..
+                        echo ==== Bandit Report ====
                         type bandit_report.txt
+                        rmdir /s /q temp_scan
                     """
                 }
             }
         }
+
 
 
 
