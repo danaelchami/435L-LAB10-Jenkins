@@ -56,17 +56,17 @@ pipeline
             }
         }
 
-        stage('Security Scan')
-        { 
+       stage('Security Scan') {
             steps {
                 script {
                     bat """
-                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r . --exclude ${WORKSPACE.replace('\\','/')}/venv,__pycache__,.pytest_cache,tests -lll || exit 0
+                        echo Running Bandit only on project source folder...
+                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r app --exclude __pycache__,.pytest_cache,tests -lll || exit 0
                     """
-
                 }
             }
         }
+
 
 
 
