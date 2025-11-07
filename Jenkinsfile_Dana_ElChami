@@ -62,13 +62,14 @@ pipeline
                     bat """
                         call ${VIRTUAL_ENV}\\Scripts\\activate
                         pip install bandit
-                        bandit -r . --exclude venv,__pycache__,.pytest_cache,tests -lll -f txt -o bandit_report.txt || echo Bandit completed with warnings
-
-
+                        echo Running Bandit security scan on project files only...
+                        bandit -r app --exclude ${VIRTUAL_ENV},__pycache__,.pytest_cache,tests -lll -f txt -o bandit_report.txt || echo Bandit completed with warnings
+                        type bandit_report.txt
                     """
                 }
             }
         }
+
 
 
         stage('Deploy')
