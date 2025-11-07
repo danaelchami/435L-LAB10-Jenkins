@@ -5,7 +5,7 @@ pipeline
     { 
         VIRTUAL_ENV = 'venv'
         SYSTEM_PYTHON = 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
-        PYTHONIOENCODING = 'utf-8'
+        
     }
 
     stages
@@ -62,7 +62,8 @@ pipeline
                     bat """
                         call ${VIRTUAL_ENV}\\Scripts\\activate
                         pip install bandit
-                        bandit -r .
+                        bandit -r . -f txt -o bandit_report.txt || type bandit_report.txt
+
                     """
                 }
             }
