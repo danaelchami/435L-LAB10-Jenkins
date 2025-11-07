@@ -59,24 +59,16 @@ pipeline
        stage('Security Scan') {
             steps {
                 script {
-                    // Convert workspace path for Bandit (forward slashes)
-                    def workspaceUnix = env.WORKSPACE.replace('\\', '/')
-                    def venvUnix = "${workspaceUnix}/venv"
-
                     bat """
-                        chcp 65001 >NUL
-                        echo Running Bandit scan and excluding ${venvUnix}
-                        cd /d "${workspaceUnix}"
-                        ${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r "${workspaceUnix}" --exclude "${venvUnix},__pycache__,.pytest_cache,tests" -lll -f txt -o bandit_report.txt || exit 0
+                        echo Running Bandit security scan only on the source folder...
+                        cd app
+                        ..\\${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r . --exclude __pycache__,.pytest_cache,tests -lll -f txt -o ..\\bandit_report.txt || exit 0
+                        cd ..
                         type bandit_report.txt
                     """
                 }
             }
         }
-
-
-
-
 
 
         stage('Deploy')
