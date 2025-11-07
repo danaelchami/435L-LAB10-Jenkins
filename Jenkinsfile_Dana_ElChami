@@ -60,25 +60,36 @@ pipeline
             steps {
                 script {
                     bat """
-                        echo Copying only source files to temp folder...
-                        mkdir temp_scan
-                        copy app.py temp_scan\\
-                        copy test_app.py temp_scan\\
-                        copy requirements.txt temp_scan\\
-                        
-                        echo Running Bandit cleanly inside temp_scan...
-                        cd temp_scan
-                        ..\\${VIRTUAL_ENV}\\Scripts\\python.exe -m bandit -r . ^
-                            --skip B101,B110,B307,B108 ^
-                            -lll -f txt -o ..\\bandit_report.txt || exit 0
-                        cd ..
-                        echo ==== Bandit Report ====
+                        echo ====================================================
+                        echo         Running Security Scan with Bandit
+                        echo ====================================================
+
+                        REM Create a clean virtual environment ONLY for scanning
+                        if exist bandit_env rmdir /s /q bandit_env
+                        python -m venv bandit_env
+                        call bandit_env\\Scripts\\activate
+
+                        echo Installing Bandit...
+                        pip install bandit >nul
+
+                        echo Running Bandit on source files only...
+                        bandit -r . ^
+                            --exclude venv,bandit_env,__pycache__,.pytest_cache,tests ^
+                            -f txt -o bandit_report.txt || exit 0
+
+                        echo ====================================================
+                        echo        SECURITY SCAN COMPLETED SUCCESSFULLY
+                        echo ====================================================
                         type bandit_report.txt
-                        rmdir /s /q temp_scan
+
+                        echo Cleaning up temporary scan environment...
+                        call bandit_env\\Scripts\\deactivate
+                        rmdir /s /q bandit_env
                     """
                 }
             }
         }
+
 
 
 
