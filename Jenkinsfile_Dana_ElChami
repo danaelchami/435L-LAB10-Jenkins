@@ -59,25 +59,31 @@ pipeline
        stage('Security Scan') {
             steps {
                 script {
-                    bat """
-                        echo ====================================================
-                        echo        Running Bandit Security Scan
-                        echo ====================================================
-
-                        call venv\\Scripts\\activate
-
-                        REM Run Bandit and ignore exit code (continue pipeline)
-                        python -m bandit -r . --exit-zero -f txt -o bandit_report.txt
-
-                        echo ====================================================
-                        echo       Bandit Scan Completed (No Failures)
-                        echo ====================================================
-
-                        type bandit_report.txt
+                    
+                    def cmd = """
+                        ${VIRTUAL_ENV}\\Scripts\\bandit -r . ^
+                        --exclude venv,__pycache__,.pytest_cache,tests ^
+                        --severity-level high ^
+                        --confidence-level high ^
+                        -f json -o bandit.json
                     """
+
+                    
+                    int status = bat(returnStatus: true, script: cmd)
+
+                    archiveArtifacts artifacts: 'bandit.json', fingerprint: true
+
+                    if (status == 0) {
+                        echo 'Bandit: No security issues found.'
+                    } else if (status == 1) {
+                        unstable(' Bandit found security issues (see bandit.json).')
+                    } else {
+                        error(" Bandit failed (exit ${status}). Check configuration or environment.")
+                    }
                 }
             }
         }
+
 
 
 
