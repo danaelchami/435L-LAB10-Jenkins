@@ -5,6 +5,7 @@ pipeline
     { 
         VIRTUAL_ENV = 'venv'
         SYSTEM_PYTHON = 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
+        PYTHONIOENCODING = 'utf-8'
     }
 
     stages
