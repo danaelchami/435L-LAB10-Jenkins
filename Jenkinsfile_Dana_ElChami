@@ -57,18 +57,24 @@ pipeline
         }
 
         stage('Security Scan') {
+            environment {
+                PYTHONIOENCODING = 'utf-8'
+            }
             steps {
                 script {
                     bat """
+                        chcp 65001 >NUL
                         call ${VIRTUAL_ENV}\\Scripts\\activate
+                        echo Installing Bandit...
                         pip install bandit
-                        echo Running Bandit security scan on project files only...
-                        bandit -r app --exclude ${VIRTUAL_ENV},__pycache__,.pytest_cache,tests -lll -f txt -o bandit_report.txt || echo Bandit completed with warnings
+                        echo Running Bandit on project files only (excluding venv)...
+                        python -m bandit -r . --exclude venv,__pycache__,.pytest_cache,tests -lll -f txt -o bandit_report.txt || echo Bandit completed with warnings
                         type bandit_report.txt
                     """
                 }
             }
         }
+
 
 
 
